@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — Spatxz</title>
+<style>
+body{margin:0;background:#000;color:#fff;font-family:Orbitron, monospace;display:flex;align-items:center;justify-content:center;height:100vh;overflow:hidden;animation:fadein 1s}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.box{max-width:720px;width:100%;padding:28px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid rgba(255,255,255,0.04);animation:slideup 1s}
+@keyframes slideup{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+h1{margin:0 0 8px 0;font-size:28px;text-shadow:0 0 10px #0ff}
+label{display:block;margin-top:12px;font-size:14px;color:#c9d1d9}
+input,textarea{width:100%;padding:10px;margin-top:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:#fff;font-size:14px;transition:0.2s}
+input:focus,textarea:focus{box-shadow:0 10px 40px rgba(0,255,255,0.3);outline:none}
+.btn{margin-top:12px;padding:10px 14px;border-radius:9px;background:#0ff;color:#000;border:none;cursor:pointer;transition:0.2s}
+.btn:hover{box-shadow:0 10px 40px rgba(0,255,255,0.3);transform:translateY(-4px)}
+.back{display:inline-block;margin-top:18px;padding:10px 14px;border-radius:9px;background:transparent;border:1px solid rgba(255,255,255,0.03);cursor:pointer;transition:0.2s}
+.back:hover{box-shadow:0 10px 40px rgba(0,255,255,0.3);transform:translateY(-4px)}
+</style>
+</head>
+<body>
+<div class="box">
+  <h1>Contact</h1>
+  <p class="muted">Reach me via GitHub or Discord, or leave a message below (form is local only).</p>
+  <label>Name</label><input placeholder="Your name">
+  <label>Email or Discord</label><input placeholder="example#1234 or your.email@example.com">
+  <label>Message</label><textarea rows="5" placeholder="Say hi or ask about projects..."></textarea>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <button class="btn">Send (local only)</button>
+    <a class="back" href="index.html">← Back</a>
+    <a class="back" href="https://github.com/spatxz" target="_blank">GitHub →</a>
+    <a class="back" href="https://discord.com/users/spatxz" target="_blank">Discord →</a>
+  </div>
+</div>
+</body>
+</html>
