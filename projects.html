@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Projects — spatxz</title>
+<meta name="description" content="Projects by spatxz - C / C++ tools & demos">
+<!-- GSAP + VanillaTilt -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+<style>
+:root{--bg:#000;--accent1:#4ee3ff;--accent2:#9b5cff;--muted:#9aa2a8}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#000;color:#fff;font-family:Inter,system-ui,Roboto,Arial}
+.canvas{position:fixed;inset:0;z-index:0;pointer-events:none}
+.wrapper{position:relative;z-index:2;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:40px}
+.container{width:100%;max-width:1200px}
+.header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.title{font-size:32px}
+.subtitle{color:var(--muted);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.card{padding:20px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.03);cursor:pointer;transform-origin:center center;transition:box-shadow .25s, transform .28s}
+.card:hover{box-shadow:0 28px 80px rgba(78,227,255,0.06)}
+.card h3{margin:0 0 8px 0}
+.desc{color:var(--muted);font-size:14px;line-height:1.5}
+.meta{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+.tag{padding:6px 8px;border-radius:9px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02);font-size:12px;color:var(--muted)}
+.actions{margin-top:12px;display:flex;gap:8px}
+.btn{padding:8px 10px;border-radius:9px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#000;font-weight:700;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:#fff}
+.modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);z-index:30;visibility:hidden;opacity:0;transition:opacity .28s, visibility .28s}
+.modal.open{visibility:visible;opacity:1}
+.modal .panel{width:920px;max-width:92%;background:#071027;border-radius:12px;padding:18px;border:1px solid rgba(255,255,255,0.04)}
+.close{padding:6px 10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);cursor:pointer}
+@media(max-width:900px){ .grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<canvas id="bg" class="canvas" aria-hidden="true"></canvas>
+
+<div class="wrapper">
+  <div class="container">
+    <div class="header">
+      <div>
+        <div class="title">Selected Projects</div>
+        <div class="subtitle">Click to preview & view on GitHub</div>
+      </div>
+      <div><a href="index.html" class="nav">Home</a></div>
+    </div>
+
+    <div class="grid" id="grid">
+      <!-- inserted by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- modal preview -->
+<div id="modal" class="modal" role="dialog" aria-hidden="true">
+  <div class="panel" id="modalPanel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div id="modalTitle" style="font-weight:700"></div>
+      <div><button id="closeModal" class="close">Close</button></div>
+    </div>
+    <div id="modalBody" style="margin-top:12px;color:#c6eaff"></div>
+  </div>
+</div>
+
+<script>
+/* data */
+const projects = [
+  {title:"StringReaper", desc:"Lightweight C++ tool for extracting & analyzing raw strings from binaries (research & audit tooling).", tags:["C++","Reverse"], url:"https://github.com/spatxz"},
+  {title:"AI-Bypasser", desc:"Research prototype in C++ exploring safe text transformation techniques for testing filters (educational).", tags:["C++","Research"], url:"https://github.com/spatxz"},
+  {title:"Realtime Visualizer", desc:"Minimal WebSocket demo showing near-real-time data mapping to visuals in a small frontend.", tags:["Web","WebSocket"], url:"https://github.com/spatxz"},
+  {title:"DNSPhantom", desc:"Educational CLI demonstrating DNS concepts for labs (ethics-friendly usage only).", tags:["C++","Networking"], url:"https://github.com/spatxz"}
+];
+
+const grid = document.getElementById('grid');
+projects.forEach((p, i) => {
+  const card = document.createElement('div'); card.className='card';
+  card.innerHTML = `<h3>${p.title}</h3><div class="desc">${p.desc}</div><div class="meta">${p.tags.map(t=>`<div class="tag">${t}</div>`).join('')}</div><div class="actions"><button class="btn" data-idx="${i}">Preview</button><button class="btn ghost" onclick="openUrl('${p.url}')">GitHub</button></div>`;
+  grid.appendChild(card);
+  // tilt
+  VanillaTilt.init(card, { max: 8, speed: 400, glare: true, "max-glare":0.08 });
+});
+
+/* GSAP stagger reveal */
+gsap.from('.card', {opacity:0, y:18, stagger:.12, duration:.8, ease:"power3.out"});
+
+/* modal */
+const modal = document.getElementById('modal'), panel = document.getElementById('modalPanel');
+document.querySelectorAll('.btn').forEach(btn=>{
+  if(btn.dataset.idx){
+    btn.addEventListener('click', ()=> {
+      const p = projects[btn.dataset.idx];
+      document.getElementById('modalTitle').textContent = p.title;
+      document.getElementById('modalBody').innerHTML = `<p style="color:#cbdde8">${p.desc}</p><p style="margin-top:10px;color:#9aa2a8">Tags: ${p.tags.join(', ')}</p><p style="margin-top:10px"><a href="${p.url}" target="_blank" style="color:#aef">Open on GitHub</a></p>`;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      gsap.from(panel, { y: 20, opacity:0, duration:.35 });
+    });
+  }
+});
+
+document.getElementById('closeModal').addEventListener('click', ()=>{ modal.classList.remove('open'); document.body.style.overflow=''; });
+
+function openUrl(u){ window.open(u, '_blank'); }
+
+/* background subtle particle */
+const c = document.getElementById('bg'), ctx = c.getContext('2d');
+function resize(){ c.width = innerWidth; c.height = innerHeight; }
+window.addEventListener('resize', resize); resize();
+let stars = [];
+function spawn(n){ for(let i=0;i<n;i++) stars.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.8+0.3,alpha:Math.random()*0.08+0.02}); }
+spawn(Math.round((c.width*c.height)/120000));
+function loop(){
+  ctx.clearRect(0,0,c.width,c.height);
+  for(let s of stars){
+    s.y -= 0.2 + Math.random()*0.2;
+    if(s.y < -10) s.y = c.height + 10;
+    ctx.beginPath(); ctx.fillStyle = `rgba(78,227,255,${s.alpha})`; ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill();
+  }
+  requestAnimationFrame(loop);
+}
+loop();
+</script>
+</body>
+</html>

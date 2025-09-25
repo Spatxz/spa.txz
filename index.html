@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>spatxz — Home</title>
+<meta name="description" content="spatxz — 17 y/o. C & C++ enthusiast. Portfolio.">
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+
+<!-- GSAP + ScrollTrigger, Three.js, VanillaTilt -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.2/vanilla-tilt.min.js"></script>
+
+<style>
+  :root{
+    --bg:#000;
+    --white:#fff;
+    --muted:#9aa2a8;
+    --accent1:#4ee3ff;
+    --accent2:#9b5cff;
+    --glass: rgba(255,255,255,0.03);
+    --glass-border: rgba(255,255,255,0.06);
+    --maxw:1280px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:#000;color:var(--white);font-family:Inter,system-ui,Roboto,Arial;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  /* full-screen canvas layers */
+  .layer { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  #bgNebula, #bgStars { mix-blend-mode: screen; opacity: 0.9; }
+  /* page shell */
+  .page { position: relative; z-index: 10; min-height: 100vh; display:flex; align-items:center; justify-content:center; padding:36px; }
+  .card {
+    width:100%; max-width:var(--maxw); border-radius:18px; overflow:hidden;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border: 1px solid var(--glass-border); backdrop-filter: blur(8px);
+    display:grid; grid-template-columns: 1fr 480px; gap:28px; padding:28px; align-items:center;
+    transform-origin:center center;
+  }
+
+  /* left content */
+  .left { padding:12px }
+  .brand { display:flex; gap:12px; align-items:center }
+  .logo { width:72px; height:72px; border-radius:14px; background: linear-gradient(90deg,var(--accent1),var(--accent2)); display:flex; align-items:center; justify-content:center; color:#000; font-weight:800; font-size:22px; box-shadow:0 20px 80px rgba(155,92,255,0.06); }
+  .title { font-size:52px; margin:8px 0 0 0; line-height:1; }
+  .title .glow { background:linear-gradient(90deg,var(--accent1),var(--accent2)); -webkit-background-clip:text; color:transparent; text-shadow: 0 18px 80px rgba(78,227,255,0.06); display:inline-block; }
+  .tagline { color:var(--accent1); margin-top:10px; min-height:30px; font-weight:600; font-size:18px }
+  .lead { color:var(--muted); max-width:640px; margin-top:14px; line-height:1.6; font-size:15px; }
+  .cta { display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:12px; border:1px solid rgba(255,255,255,0.06); background:transparent; color:var(--white); cursor:pointer; display:inline-flex; align-items:center; gap:8px; transition: transform .18s, box-shadow .18s; text-decoration:none; font-weight:600; }
+  .btn.primary { background:linear-gradient(90deg,var(--accent1),var(--accent2)); color:#000; border:1px solid rgba(78,227,255,0.12); }
+  .btn:hover { transform: translateY(-6px); box-shadow: 0 28px 80px rgba(78,227,255,0.06); }
+  .note { font-size:13px; color:var(--muted); margin-top:12px; }
+
+  /* console box */
+  .console { margin-top:18px; width:100%; max-width:680px; height:92px; overflow:hidden; border-radius:10px; background: rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.03); padding:10px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, monospace; color:#9ff; font-size:12px; display:flex; flex-direction:column; gap:4px; box-shadow:0 12px 40px rgba(0,0,0,0.6); }
+  .console .line { opacity:0.95; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  /* right: globe area */
+  .right { padding:12px; display:flex; flex-direction:column; gap:12px; align-items:stretch; }
+  #globeContainer { width:100%; height:420px; border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.03); background:linear-gradient(180deg, rgba(255,255,255,0.007), rgba(255,255,255,0.003)); }
+  .mini-stats { display:flex; gap:10px; margin-top:10px; }
+  .stat { flex:1; padding:10px; border-radius:10px; background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.03); text-align:center; }
+
+  /* top nav (small) */
+  .topnav { position:fixed; right:20px; top:20px; z-index:20; display:flex; gap:8px; }
+  .topnav a { padding:8px 12px; border-radius:10px; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.03); color:var(--muted); font-weight:700; text-decoration:none; }
+  .topnav a:hover { color:var(--white); outline:2px solid rgba(78,227,255,0.04); }
+
+  /* page fade */
+  .page-fade { transition: opacity 420ms ease, transform 420ms ease; }
+  .fade-out { opacity: 0; transform: translateY(12px) scale(.995); }
+
+  @media (max-width: 980px) {
+    .card { grid-template-columns: 1fr; padding:18px; }
+    .title { font-size:36px; }
+    #globeContainer { height:300px; }
+  }
+</style>
+</head>
+<body>
+  <!-- background layers -->
+  <canvas id="bgNebula" class="layer"></canvas>
+  <canvas id="bgStars" class="layer"></canvas>
+
+  <!-- top nav -->
+  <div class="topnav" aria-hidden="true">
+    <a href="about.html" class="nav-link">About</a>
+    <a href="projects.html" class="nav-link">Projects</a>
+    <a href="contact.html" class="nav-link">Contact</a>
+    <a href="https://github.com/spatxz" target="_blank">GitHub</a>
+  </div>
+
+  <!-- page content -->
+  <div class="page page-fade" id="page">
+    <div class="card" id="hero">
+      <div class="left">
+        <div class="brand">
+          <div class="logo">S</div>
+          <div>
+            <div style="font-size:13px;color:var(--muted)">spatxz</div>
+            <div style="font-size:13px;color:var(--muted)">17 · High school · C & C++</div>
+          </div>
+        </div>
+
+        <h1 class="title"><span class="glow">spatxz</span></h1>
+        <div class="tagline" id="typed"></div>
+
+        <p class="lead">I build fast, low-level tools in C & C++ and explore systems programming. I optimize for speed and memory, publish tools on GitHub, and enjoy reverse-engineering puzzles.</p>
+
+        <div class="cta">
+          <a class="btn primary nav-link" href="projects.html">View Projects</a>
+          <a class="btn nav-link" href="about.html">About Me</a>
+          <a class="btn" href="https://github.com/spatxz" target="_blank">GitHub</a>
+          <button class="btn" id="copyDiscord">Copy Discord</button>
+        </div>
+
+        <div class="console" aria-hidden="true" id="console">
+          <!-- lines will populate -->
+        </div>
+
+        <div class="note">Tip: move your mouse around — everything parallax-shifts. Hover UI for neon reactions.</div>
+      </div>
+
+      <div class="right">
+        <div id="globeContainer">
+          <canvas id="globeCanvas" style="width:100%; height:100%"></canvas>
+        </div>
+
+        <div class="mini-stats">
+          <div class="stat"><div style="font-size:12px;color:var(--muted)">Repos</div><div style="font-weight:700">27</div></div>
+          <div class="stat"><div style="font-size:12px;color:var(--muted)">Languages</div><div style="font-weight:700">C / C++</div></div>
+          <div class="stat"><div style="font-size:12px;color:var(--muted)">Uptime</div><div style="font-weight:700">99.9%</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* -----------------------------
+   1) Simple reliable Earth textures (NASA)
+   2) Cinematic entrance + typed tagline
+   3) Console logs background (non-interactive)
+   4) Nebula + stars canvas (background)
+   5) Three.js globe (with clouds)
+   6) Parallax + nav fade transitions
+   ----------------------------- */
+
+gsap.defaults({ease: "power3.out"});
+
+/* ----------  typed tagline (fast cinematic) ---------- */
+const phrases = ["I'm a Highschool Student", "C / C++ Enthusiast", "Systems & Optimization", "Publishing tools on GitHub"];
+let pi=0, ci=0, deleting=false, typedEl=document.getElementById('typed');
+function typeLoop(){
+  const text = phrases[pi];
+  if(!deleting){
+    typedEl.textContent = text.slice(0, ci+1);
+    ci++;
+    if(ci === text.length){ deleting=true; setTimeout(typeLoop, 900); return; }
+  } else {
+    typedEl.textContent = text.slice(0, ci-1);
+    ci--;
+    if(ci === 0){ deleting=false; pi=(pi+1)%phrases.length; }
+  }
+  setTimeout(typeLoop, 42 + Math.random()*18);
+}
+typeLoop();
+
+/* ---------- console log animation (background only) ---------- */
+const consoleEl = document.getElementById('console');
+const consoleMsgs = [
+  '> Initializing spatxz.dev ...',
+  '> Loading modules: C,C++,...',
+  '> Loading GitHub index... OK',
+  '> Spawning builder: tools/core',
+  '> Uptime check: OK'
+];
+function pushConsole(){
+  const idx = Math.floor(Math.random()*consoleMsgs.length);
+  const line = document.createElement('div'); line.className='line';
+  line.textContent = consoleMsgs[idx];
+  consoleEl.appendChild(line);
+  if(consoleEl.children.length > 5) consoleEl.removeChild(consoleEl.firstChild);
+}
+setInterval(pushConsole, 1400);
+pushConsole();
+
+/* ---------- background nebula + stars ---------- */
+const neb = document.getElementById('bgNebula'), ns = neb.getContext('2d');
+const stars = document.getElementById('bgStars'), ss = stars.getContext('2d');
+let W = neb.width = stars.width = innerWidth, H = neb.height = stars.height = innerHeight;
+window.addEventListener('resize', ()=>{ W = neb.width = stars.width = innerWidth; H = neb.height = stars.height = innerHeight; });
+
+let particles = [];
+function initParticles(){
+  particles = [];
+  const count = Math.round((W*H)/90000);
+  for(let i=0;i<count;i++){
+    particles.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.8+0.4, vx:(Math.random()-0.5)*0.4, vy: - (Math.random()*0.15 + 0.02), hue: 180 + Math.random()*140, alpha: Math.random()*0.08+0.01 });
+  }
+}
+initParticles();
+
+let starField = [];
+function initStars(){
+  starField = [];
+  const count = Math.round((W*H)/15000);
+  for(let i=0;i<count;i++) starField.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.6+0.2, a: Math.random()*0.8+0.2 });
+}
+initStars();
+
+function drawBG(){
+  // nebula gradient
+  const g = ns.createLinearGradient(0,0,W,H);
+  g.addColorStop(0, 'rgba(78,227,255,0.02)');
+  g.addColorStop(0.45, 'rgba(155,92,255,0.02)');
+  g.addColorStop(1, 'rgba(0,0,0,0)');
+  ns.clearRect(0,0,W,H);
+  ns.fillStyle = g;
+  ns.fillRect(0,0,W,H);
+
+  // particles
+  for(const p of particles){
+    p.x += p.vx; p.y += p.vy;
+    if(p.y < -20){ p.y = H + 20; p.x = Math.random()*W; }
+    if(p.x < -40) p.x = W + 40;
+    if(p.x > W + 40) p.x = -40;
+    ns.beginPath();
+    ns.fillStyle = `hsla(${p.hue},80%,65%,${p.alpha})`;
+    ns.arc(p.x, p.y, p.r, 0, Math.PI*2); ns.fill();
+  }
+  // stars
+  ss.clearRect(0,0,W,H);
+  for(const s of starField){
+    // twinkle
+    const a = 0.4 + Math.sin((Date.now()/1000) + s.x*0.001)*0.6;
+    ss.beginPath(); ss.fillStyle = `rgba(255,255,255,${Math.min(1,a*s.a)})`; ss.arc(s.x, s.y, s.r, 0, Math.PI*2); ss.fill();
+  }
+  requestAnimationFrame(drawBG);
+}
+drawBG();
+
+/* ---------- Three.js globe with clouds (NASA texture) ---------- */
+const globeCanvas = document.getElementById('globeCanvas');
+const renderer = new THREE.WebGLRenderer({canvas: globeCanvas, antialias:true, alpha:true});
+renderer.setPixelRatio(window.devicePixelRatio);
+function resizeGlobe(){ renderer.setSize(document.getElementById('globeContainer').clientWidth, document.getElementById('globeContainer').clientHeight); camera.aspect = document.getElementById('globeContainer').clientWidth / document.getElementById('globeContainer').clientHeight; camera.updateProjectionMatrix(); }
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 1000); camera.position.z = 4.1;
+const light = new THREE.DirectionalLight(0xffffff, 1.15); light.position.set(5,3,5); scene.add(light);
+scene.add(new THREE.AmbientLight(0x404040, 0.7));
+const sphereGeo = new THREE.SphereGeometry(1.35, 64, 64);
+const loader = new THREE.TextureLoader();
+const earthUrl = 'https://eoimages.gsfc.nasa.gov/images/imagerecords/74000/74475/land_ocean_ice_2048.jpg';
+const cloudsUrl = 'https://raw.githubusercontent.com/immersive-web/webxr-samples/master/media/earth/clouds.png';
+loader.load(earthUrl, (tex)=>{
+  const mat = new THREE.MeshStandardMaterial({ map: tex, metalness: 0.04, roughness: 0.95 });
+  const globe = new THREE.Mesh(sphereGeo, mat); scene.add(globe);
+  loader.load(cloudsUrl, (cloudTex)=>{
+    const cloudMat = new THREE.MeshPhongMaterial({ map: cloudTex, transparent:true, opacity:0.35, depthWrite:false });
+    const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.36,64,64), cloudMat); scene.add(clouds);
+    animateGlobe(globe, clouds);
+  }, undefined, ()=>{ animateGlobe(globe, null); });
+}, undefined, ()=>{ const mat = new THREE.MeshStandardMaterial({ color:0x0d3a53, roughness:0.9 }); scene.add(new THREE.Mesh(sphereGeo, mat)); animateGlobe(scene.children[scene.children.length-1], null); });
+
+const controls = new THREE.OrbitControls(camera, renderer.domElement); controls.enableZoom = false; controls.enablePan = false; controls.autoRotate = true; controls.autoRotateSpeed = 0.22; controls.enableDamping = true; controls.dampingFactor = 0.06; controls.minPolarAngle = Math.PI/3.6; controls.maxPolarAngle = Math.PI/1.9;
+
+function animateGlobe(globeMesh, cloudMesh){
+  resizeGlobe();
+  window.addEventListener('resize', resizeGlobe);
+  (function loop(){
+    requestAnimationFrame(loop);
+    globeMesh.rotation.y += 0.0015;
+    if(cloudMesh) cloudMesh.rotation.y += 0.0019;
+    controls.update();
+    renderer.render(scene, camera);
+  })();
+}
+
+/* ---------- entrance animation (cinematic) ---------- */
+gsap.from('.card', { opacity: 0, y: 24, scale: 0.995, duration: 1.0, ease: "power3.out", delay: 0.15 });
+gsap.from('.logo', { y: 16, opacity:0, duration:0.9, delay:0.2 });
+gsap.from('.title', { y: 26, opacity:0, duration:1.0, delay:0.25 });
+gsap.from('.right', { x: 40, opacity:0, duration:0.9, delay:0.35 });
+
+/* ---------- nav link cinematic fade-out ---------- */
+document.querySelectorAll('.nav-link').forEach(a=> {
+  a.addEventListener('click', (e)=> {
+    const href = a.getAttribute('href');
+    if(href && href.startsWith('http')) return;
+    e.preventDefault();
+    document.getElementById('page').classList.add('fade-out');
+    setTimeout(()=> window.location = href, 420);
+  });
+});
+
+/* ---------- copy discord ---------- */
+document.getElementById('copyDiscord').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText('spatxz'); const b = document.getElementById('copyDiscord'); b.textContent = 'Copied ✓'; setTimeout(()=> b.textContent = 'Copy Discord', 1400); }
+  catch(e){ alert('Copy failed — spatxz'); }
+});
+
+/* ---------- soft parallax for the shell ---------- */
+document.addEventListener('mousemove', e=>{
+  const cx = (e.clientX - innerWidth/2)/innerWidth;
+  const cy = (e.clientY - innerHeight/2)/innerHeight;
+  document.querySelector('.card').style.transform = `translate3d(${cx*10}px, ${cy*10}px, 0) scale(1)`;
+});
+
+</script>
+</body>
+</html>

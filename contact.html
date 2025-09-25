@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact — spatxz</title>
+<meta name="description" content="Contact spatxz — GitHub & Discord links, contact form">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<style>
+:root{--accent1:#4ee3ff;--accent2:#9b5cff;--muted:#9aa2a8}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:#000;color:#fff;font-family:Inter,system-ui,Roboto,Arial}
+.container{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px}
+.card{width:100%;max-width:820px;border-radius:14px;padding:22px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border:1px solid rgba(255,255,255,0.04);backdrop-filter: blur(6px)}
+h1{margin:0;font-size:26px}
+.label{color:var(--muted);font-size:13px;margin-top:12px}
+.input{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.03);background:transparent;color:#fff}
+.btn{padding:10px 14px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent1),var(--accent2));color:#000;font-weight:700;cursor:pointer}
+.small{color:var(--muted);font-size:13px;margin-top:10px}
+.topnav{position:fixed;right:20px;top:20px}
+.topnav a{padding:8px 12px;border-radius:9px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.03);color:var(--muted);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="topnav"><a href="index.html">Home</a> <a href="projects.html">Projects</a></div>
+
+<div class="container">
+  <div class="card" id="card">
+    <h1>Contact</h1>
+    <p class="small">Reach me on GitHub or Discord, or send a quick message below (demo form — can be connected to Formspree/Netlify).</p>
+
+    <div class="label">GitHub</div>
+    <div style="margin-top:8px"><a class="input" href="https://github.com/spatxz" target="_blank" style="display:inline-block">github.com/spatxz</a></div>
+
+    <div class="label">Discord</div>
+    <div style="margin-top:8px">
+      <input id="discord" class="input" value="spatxz" readonly>
+      <button id="copyBtn" class="btn" style="margin-top:10px">Copy Discord</button>
+    </div>
+
+    <form id="f" style="margin-top:18px">
+      <div class="label">Your name</div>
+      <input id="name" class="input" placeholder="Your name">
+      <div class="label">Email or Discord</div>
+      <input id="contact" class="input" placeholder="email@example.com or name#1234">
+      <div class="label">Message</div>
+      <textarea id="message" class="input" rows="6" placeholder="Say hi — what's up?" style="resize:vertical"></textarea>
+      <div style="margin-top:12px;display:flex;gap:10px">
+        <button class="btn" type="submit">Send (local)</button>
+        <a href="index.html" class="btn" style="background:transparent;border:1px solid rgba(255,255,255,0.03);color:#fff;padding:10px 12px">← Back</a>
+      </div>
+    </form>
+
+    <p class="small" style="margin-top:12px;color:var(--muted)">Want real sending? I can add Formspree or a tiny serverless function to send mails securely.</p>
+  </div>
+</div>
+
+<script>
+gsap.from('#card', {y:20, opacity:0, duration:.8});
+document.getElementById('copyBtn').addEventListener('click', async ()=>{
+  try{ await navigator.clipboard.writeText(document.getElementById('discord').value); document.getElementById('copyBtn').textContent='Copied ✓'; setTimeout(()=> document.getElementById('copyBtn').textContent='Copy Discord',1400); }
+  catch(e){ alert('Copy failed — use spatxz'); }
+});
+
+document.getElementById('f').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const n = document.getElementById('name').value.trim();
+  const c = document.getElementById('contact').value.trim();
+  const m = document.getElementById('message').value.trim();
+  if(!n || !c || !m){ alert('Please fill all fields'); return; }
+  gsap.to('#card', {opacity:0.6, duration:.25, y:6, ease:'power2.inOut'});
+  setTimeout(()=>{ alert('Message stored locally — replace with your form endpoint to send for real.'); document.getElementById('f').reset(); gsap.to('#card',{opacity:1,y:0,duration:.35}); }, 600);
+});
+</script>
+</body>
+</html>
